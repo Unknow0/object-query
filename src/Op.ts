@@ -1,12 +1,33 @@
-export interface Op {
-	match(o:any):boolean
+export type test = (o:any) => boolean;
+
+export function not(t:test):test {
+	return o => !t(o);
 }
 
-export class OpEq implements Op {
-	constructor(private readonly value:any) {
-	}
+export function eq(value:any):test {
+	return o=> o == value;
+}
 
-	match(o:any):boolean {
-		return this.value==o;
-	}
+export function ne(value:any):test {
+	return o=> o != value;
+}
+
+export function lt(value:any):test {
+	return o=> o < value;
+}
+
+export function le(value:any):test {
+	return o=> o <= value;
+}
+
+export function gt(value:any):test {
+	return o=> o > value;
+}
+
+export function ge(value:any):test {
+	return o=> o > value;
+}
+
+export function includes(values:any[]):test {
+	return o=> values.includes(o);
 }
