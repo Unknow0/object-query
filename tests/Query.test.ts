@@ -1,5 +1,5 @@
 import * as q from '../src/Query';
-import { eq } from '../src/Op';
+import { $eq } from '../src/Op';
 
 describe('none', ()=> {
 	let m=q.none();
@@ -14,7 +14,7 @@ describe('none', ()=> {
 })
 
 describe('path', ()=>{
-	let m=q.path('a.b', eq(4))
+	let m=q.path('a.b', $eq(4))
 
 	test('empty', () => expect(m.match({})).toBe(false))
 	test('missing', () => expect(m.match({a: 5})).toBe(false))

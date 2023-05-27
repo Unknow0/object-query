@@ -1,6 +1,6 @@
 {
   "name": "@unknow0/object-query",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "find object",
   "main": "dist/index.js",
   "files": [
@@ -8,8 +8,8 @@
   ],
   "scripts": {
     "test": "jest",
-    "tsc": "tsc -p tsconfig.json",
-    "prepublishOnly": "npm run tsc"
+    "build": "nearleyc -o src/grammar.ts query.ne && tsc -p tsconfig.json",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -20,7 +20,7 @@
     "query",
     "find"
   ],
-  "author": "UNknow0\u001b[D\u001b[D\u001b[D\u001b[D\u001b[n\u001b[F",
+  "author": "Unnow0",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Unknow0/object-query/issues"
@@ -31,5 +31,8 @@
     "jest": "^29.5.0",
     "ts-jest": "^29.1.0",
     "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "nearley": "^2.20.1"
   }
 }

@@ -1,4 +1,6 @@
 import { test } from './Op';
+const nearley = require("nearley");
+import grammar from "./grammar";
 
 export type Query = {
 	match(o:any):boolean;
@@ -10,7 +12,7 @@ export function none() {
 	return NONE;
 }
 
-export function all(...q: Query[]):Query {
+export function all(q: Query[]):Query {
 	if(q.length==0)
 		return NONE;
 	if(q.length==1)
@@ -26,7 +28,7 @@ export function all(...q: Query[]):Query {
 	}
 }
 
-export function one(...q: Query[]):Query {
+export function one(q: Query[]):Query {
 	if(q.length==0)
 		return NONE;
 	if(q.length==1)
@@ -46,7 +48,17 @@ export function path(p:string, t:test):Query {
 	return new PathQuery(p.split('.'), t);
 }
 
-class PathQuery {
+export function parse(p:string):Query | undefined {
+	try {
+		const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+		parser.feed(p);
+		return parser.results[0];
+	} catch (e) {
+		console.log(e)
+	}
+}
+
+export class PathQuery {
 	constructor(
 		private paths:string[],
 		private test: test
