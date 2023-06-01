@@ -63,3 +63,19 @@ export function $in(values:any[]):test {
 export function $nin(values:any[]):test {
 	return o=> !values.includes(o);
 }
+
+function regexp(value:any):RegExp {
+	let	f:string='i'
+	// TODO
+	return new RegExp(value, f);
+}
+
+export function $re(value:any):test {
+	const r:RegExp=regexp(value);
+	return o=>o.toString().search(r)>=0
+}
+
+export function $nr(value:any):test {
+	const r:RegExp=regexp(value);
+	return o=>o.toString().search(r)<0
+}

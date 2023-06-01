@@ -45,7 +45,13 @@ export function one(q: Query[]):Query {
 }
 
 export function path(p:string, t:test):Query {
-	return new PathQuery(p.split('.'), t);
+	return paths(p.split('.'), t);
+}
+
+export function paths(p:string[], t:test):Query {
+	return {
+		match: o=>match(o, p, t, 0)
+	}
 }
 
 export function parse(p:string):Query | undefined {
@@ -58,28 +64,15 @@ export function parse(p:string):Query | undefined {
 	}
 }
 
-export class PathQuery {
-	constructor(
-		private paths:string[],
-		private test: test
-		) {
+function match(o:any, paths:string[], test:test, x:number):boolean {
+	if(o==null || x==paths.length)
+		return test(o);
+	if(!Array.isArray(o))
+		return match(o[paths[x]], paths, test, x+1);
+	
+	for(let i=0; i<o.length; i++) {
+		if(match(o[i], paths, test, x))
+			return true;
 	}
-
-	process(o:any, x:number):boolean {
-		if(o==null || x==this.paths.length)
-			return this.test(o);
-		if(!Array.isArray(o))
-			return this.process(o[this.paths[x]], x+1);
-		
-		for(let i=0; i<o.length; i++) {
-			if(this.process(o[i], x))
-				return true;
-		}
-		return false;
-	}
-
-	match(o:any):boolean {
-		return this.process(o, 0);
-	}
+	return false;
 }
-
