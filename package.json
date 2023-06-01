@@ -4,6 +4,7 @@
   "description": "find object",
   "main": "dist/index.js",
   "files": [
+  	"src/",
     "dist/"
   ],
   "scripts": {
