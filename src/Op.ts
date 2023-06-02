@@ -73,5 +73,5 @@ export function $nin(values:any[]):test {
 export function $match(value:any):test {
 	const v:string = value.toString().toLowerCase();
 	const n:string = '{$match:'+JSON.stringify(value)+'}';
-	return f(n, o => o.toString().toLowerCase().includes(v));
+	return f(n, o => o!=null&&o.toString().toLowerCase().includes(v));
 }

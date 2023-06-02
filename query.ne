@@ -29,6 +29,8 @@
 			return true
 		if(v=='false')
 			return false
+		if(v=='null')
+			return null;
 		return d;
 	}
 	
