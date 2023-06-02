@@ -22,6 +22,15 @@
 			a.push(d[i][3])
 		return a;
 	}
+
+	function raw(d:string):any {
+		const v:string = d.toLowerCase()
+		if(v=='true')
+			return true
+		if(v=='false')
+			return false
+		return d;
+	}
 	
 	function or(d:any[]):any {
 		if(d[1].length==0)
@@ -56,22 +65,19 @@ op -> _ key _ (
 	| "<=" _ value					{% d => o.$le(d[2]) %}
 	| " in (" _ values _ ")"		{% d => o.$in(d[2]) %}
 	| " nin (" _ values _ ")"		{% d => o.$nin(d[2]) %}
-	| ":" _ value					{% d => o.$re(d[2]) %}
-	| "!:" _ value					{% d => o.$nr(d[2]) %}
+	| ":" _ value					{% d => o.$match(d[2]) %}
+	| "!:" _ value					{% d => o.$not(o.$match(d[2])) %}
 	) _								{% d => paths(d[1], d[3]) %}
+	| " not (" query ")"			{% d => o.$not(d[1]) %}
 	| "(" query ")"					{% d => d[1] %}
 
 values ->  value ( _ "," _ value):* {% values %}
-value ->
-	  dqstring 						{% id %}
-	| sqstring 						{% id %}
-	| "true"						{% d => true %}
-	| "false"						{% d => false %}
-	| "-":? (
-		  [0-9]:* "." [0-9]:+ 		{% d=> d[0].join("") +"." +d[2].join("") %}
-		| [0-9]:+ ".":?				{% d=> d[0].join("") %}
-		)							{% d => parseFloat(d.join("")) %}
-	| [^ ]:+						{% d => d[0].join("") %}
+
+value ->  dqstring 					{% id %}
+value ->  sqstring 					{% id %}
+value -> int						{% id %}
+value -> decimal					{% id %}
+value -> [a-zA-Z0-9_-]:+		 	{% d => raw(d[0].join("")) %}
 	
 key -> name ( 
 	  "." name						{% d=>d[1] %}

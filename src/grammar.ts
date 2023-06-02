@@ -21,6 +21,15 @@ function id(d: any[]): any { return d[0]; }
 			a.push(d[i][3])
 		return a;
 	}
+
+	function raw(d:string):any {
+		const v:string = d.toLowerCase()
+		if(v=='true')
+			return true
+		if(v=='false')
+			return false
+		return d;
+	}
 	
 	function or(d:any[]):any {
 		if(d[1].length==0)
@@ -213,10 +222,12 @@ const grammar: Grammar = {
     {"name": "op$subexpression$1", "symbols": ["op$subexpression$1$string$4", "_", "values", "_", {"literal":")"}], "postprocess": d => o.$in(d[2])},
     {"name": "op$subexpression$1$string$5", "symbols": [{"literal":" "}, {"literal":"n"}, {"literal":"i"}, {"literal":"n"}, {"literal":" "}, {"literal":"("}], "postprocess": (d) => d.join('')},
     {"name": "op$subexpression$1", "symbols": ["op$subexpression$1$string$5", "_", "values", "_", {"literal":")"}], "postprocess": d => o.$nin(d[2])},
-    {"name": "op$subexpression$1", "symbols": [{"literal":":"}, "_", "value"], "postprocess": d => o.$re(d[2])},
+    {"name": "op$subexpression$1", "symbols": [{"literal":":"}, "_", "value"], "postprocess": d => o.$match(d[2])},
     {"name": "op$subexpression$1$string$6", "symbols": [{"literal":"!"}, {"literal":":"}], "postprocess": (d) => d.join('')},
-    {"name": "op$subexpression$1", "symbols": ["op$subexpression$1$string$6", "_", "value"], "postprocess": d => o.$nr(d[2])},
+    {"name": "op$subexpression$1", "symbols": ["op$subexpression$1$string$6", "_", "value"], "postprocess": d => o.$not(o.$match(d[2]))},
     {"name": "op", "symbols": ["_", "key", "_", "op$subexpression$1", "_"], "postprocess": d => paths(d[1], d[3])},
+    {"name": "op$string$1", "symbols": [{"literal":" "}, {"literal":"n"}, {"literal":"o"}, {"literal":"t"}, {"literal":" "}, {"literal":"("}], "postprocess": (d) => d.join('')},
+    {"name": "op", "symbols": ["op$string$1", "query", {"literal":")"}], "postprocess": d => o.$not(d[1])},
     {"name": "op", "symbols": [{"literal":"("}, "query", {"literal":")"}], "postprocess": d => d[1]},
     {"name": "values$ebnf$1", "symbols": []},
     {"name": "values$ebnf$1$subexpression$1", "symbols": ["_", {"literal":","}, "_", "value"]},
@@ -224,26 +235,11 @@ const grammar: Grammar = {
     {"name": "values", "symbols": ["value", "values$ebnf$1"], "postprocess": values},
     {"name": "value", "symbols": ["dqstring"], "postprocess": id},
     {"name": "value", "symbols": ["sqstring"], "postprocess": id},
-    {"name": "value$string$1", "symbols": [{"literal":"t"}, {"literal":"r"}, {"literal":"u"}, {"literal":"e"}], "postprocess": (d) => d.join('')},
-    {"name": "value", "symbols": ["value$string$1"], "postprocess": d => true},
-    {"name": "value$string$2", "symbols": [{"literal":"f"}, {"literal":"a"}, {"literal":"l"}, {"literal":"s"}, {"literal":"e"}], "postprocess": (d) => d.join('')},
-    {"name": "value", "symbols": ["value$string$2"], "postprocess": d => false},
-    {"name": "value$ebnf$1", "symbols": [{"literal":"-"}], "postprocess": id},
-    {"name": "value$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "value$subexpression$1$ebnf$1", "symbols": []},
-    {"name": "value$subexpression$1$ebnf$1", "symbols": ["value$subexpression$1$ebnf$1", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "value$subexpression$1$ebnf$2", "symbols": [/[0-9]/]},
-    {"name": "value$subexpression$1$ebnf$2", "symbols": ["value$subexpression$1$ebnf$2", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "value$subexpression$1", "symbols": ["value$subexpression$1$ebnf$1", {"literal":"."}, "value$subexpression$1$ebnf$2"], "postprocess": d=> d[0].join("") +"." +d[2].join("")},
-    {"name": "value$subexpression$1$ebnf$3", "symbols": [/[0-9]/]},
-    {"name": "value$subexpression$1$ebnf$3", "symbols": ["value$subexpression$1$ebnf$3", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "value$subexpression$1$ebnf$4", "symbols": [{"literal":"."}], "postprocess": id},
-    {"name": "value$subexpression$1$ebnf$4", "symbols": [], "postprocess": () => null},
-    {"name": "value$subexpression$1", "symbols": ["value$subexpression$1$ebnf$3", "value$subexpression$1$ebnf$4"], "postprocess": d=> d[0].join("")},
-    {"name": "value", "symbols": ["value$ebnf$1", "value$subexpression$1"], "postprocess": d => parseFloat(d.join(""))},
-    {"name": "value$ebnf$2", "symbols": [/[^ ]/]},
-    {"name": "value$ebnf$2", "symbols": ["value$ebnf$2", /[^ ]/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "value", "symbols": ["value$ebnf$2"], "postprocess": d => d[0].join("")},
+    {"name": "value", "symbols": ["int"], "postprocess": id},
+    {"name": "value", "symbols": ["decimal"], "postprocess": id},
+    {"name": "value$ebnf$1", "symbols": [/[a-zA-Z0-9_-]/]},
+    {"name": "value$ebnf$1", "symbols": ["value$ebnf$1", /[a-zA-Z0-9_-]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "value", "symbols": ["value$ebnf$1"], "postprocess": d => raw(d[0].join(""))},
     {"name": "key$ebnf$1", "symbols": []},
     {"name": "key$ebnf$1$subexpression$1", "symbols": [{"literal":"."}, "name"], "postprocess": d=>d[1]},
     {"name": "key$ebnf$1", "symbols": ["key$ebnf$1", "key$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
