@@ -24,3 +24,9 @@ describe('path', ()=>{
 	test('array2', () => expect(m.match({a: [{b: 4}, {b: 5}]})).toBe(true))
 	test('array3', () => expect(m.match({a: [{b: 6}, {b: 5}]})).toBe(false))
 })
+
+describe('parse', () => {
+	test('error', () => expect(q.parse('qsd')).toBeUndefined())
+	test('ok', () => expect(q.parse('test: 4')).toBeDefined())
+	console.log(q.parse('test: 4').toString())
+})

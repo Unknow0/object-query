@@ -1,91 +1,60 @@
 @preprocessor typescript 
-
-@builtin "whitespace.ne"
-@builtin "number.ne"
-@builtin "string.ne"
+@lexer lexer
 
 @{%
+	import { lex } from './lexer'
 	import * as o from './Op'
 	import {Query, paths, all, one} from './Query'
 
-	function key(d:any[]):any {
-		let a=[d[0]];
-		d=d[1];
-		for(let i=0; i<d.length; i++)
-			a.push(d[i][0])
-		return a;
+	const lexer=require('moo').compile(lex);
+
+	function value(d:any[]):any {
+		return d[0].value;
 	}
-	function values(d:any[]):any {
-		let a=[d[0]];
+
+	function c(d:any[], v:number):any {
+		let a:any=[d[0]];
 		d=d[1];
 		for(let i=0; i<d.length; i++)
-			a.push(d[i][3])
+			a.push(d[i][v])
 		return a;
 	}
 
-	function raw(d:string):any {
-		const v:string = d.toLowerCase()
-		if(v=='true')
-			return true
-		if(v=='false')
-			return false
-		if(v=='null')
-			return null;
-		return d;
-	}
-	
-	function or(d:any[]):any {
-		if(d[1].length==0)
-			return d[0]
-		let a:Query[]=[<Query>d[0]];
+	function key(d:any[]):any {
+		let a:any=[d[0].value];
 		d=d[1];
 		for(let i=0; i<d.length; i++)
-			a.push(<Query>d[i][3])
-		return one(a);
-	}
-	
-	function and(d:any[]):any {
-		if(d[1].length==0)
-			return d[0]
-		let a:Query[]=[<Query>d[0]];
-		d=d[1];
-		for(let i=0; i<d.length; i++)
-			a.push(<Query>d[i][3])
-		return all(a);
+			a.push(d[i][1].value)
+		return a;
 	}
 %}
 
-query -> qand ( __ "or" __ qand ):*	{% or %}
-qand ->  op ( __ "and" __ op ):*	{% and %}
+query -> qand ( %ws %or %ws qand ):*			{% d => one(c(d, 3)) %}
+qand ->  op ( %ws %and %ws op ):*				{% d => all(c(d, 3)) %}
 
-op -> _ key _ (
-	  "="  _ value					{% d => o.$eq(d[2]) %}
-	| "!=" _ value					{% d => o.$ne(d[2]) %}
-	| ">"  _ value					{% d => o.$gt(d[2]) %}
-	| ">=" _ value					{% d => o.$ge(d[2]) %}
-	| "<"  _ value					{% d => o.$lt(d[2]) %}
-	| "<=" _ value					{% d => o.$le(d[2]) %}
-	| " in (" _ values _ ")"		{% d => o.$in(d[2]) %}
-	| " nin (" _ values _ ")"		{% d => o.$nin(d[2]) %}
-	| ":" _ value					{% d => o.$match(d[2]) %}
-	| "!:" _ value					{% d => o.$not(o.$match(d[2])) %}
-	) _								{% d => paths(d[1], d[3]) %}
-	| " not (" query ")"			{% d => o.$not(d[1]) %}
-	| "(" query ")"					{% d => d[1] %}
+op -> %ws:? key %ws:? (
+	  %eq %ws:? value							{% d => o.$eq(d[2]) %}
+	| %ne %ws:? value							{% d => o.$ne(d[2]) %}
+	| %ge %ws:? value							{% d => o.$gt(d[2]) %}
+	| %ge %ws:? value							{% d => o.$ge(d[2]) %}
+	| %lt %ws:? value							{% d => o.$lt(d[2]) %}
+	| %le %ws:? value							{% d => o.$le(d[2]) %}
+	| %ws %_in %ws %lp %ws:? values %ws:? %rp	{% d => o.$in(d[2]) %}
+	| %ws %not %_in %lp %ws:? values %ws:? %rp	{% d => o.$nin(d[3]) %}
+	| %re %ws:? value							{% d => o.$match(d[2]) %}
+	| %nr %ws:? value							{% d => o.$not(o.$match(d[2])) %}
+	) %ws:?										{% d => paths(d[1], d[3]) %}
+	| %ws %not query							{% d => o.$not(d[1]) %}
+	| %lp query %rp								{% d => d[1] %}
 
-values ->  value ( _ "," _ value):* {% values %}
+values ->  value ( %ws:? %coma %ws:? value):*	{% d => c(d, 3) %}
 
-value ->  dqstring 					{% id %}
-value ->  sqstring 					{% id %}
-value -> int						{% id %}
-value -> decimal					{% id %}
-value -> [a-zA-Z0-9_-]:+		 	{% d => raw(d[0].join("")) %}
+value -> %int									{% value %}
+value -> %float									{% value %}
+value -> %bool									{% value %}
+value -> %string								{% value %}
+value -> %_null									{% value %}
 	
-key -> name ( 
-	  "." name						{% d=>d[1] %}
-	):*								{% key %}
-	
-name ->
-	  [a-zA-Z0-9]:+					{% d=>d[0].join("") %}
-	| "[\"" [^"]:+ "\"]"			{% d=>d[1].join("") %}
-	| "['" [^']:+ "']"				{% d=>d[1].join("") %}
+key -> %string ( 
+	  %dot %string								{% d => d[1].value %}
+	):*											{% key %}

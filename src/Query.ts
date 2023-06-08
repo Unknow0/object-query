@@ -23,7 +23,7 @@ export function all(q: Query[] = []):Query {
 	return {
 		toString: () => n,
 		match: o=> {
-			for(let i=0; i<q.length; i++){
+			for(let i=0; i<q.length; i++) {
 				if(!q[i].match(o))
 					return false;
 			}
@@ -62,10 +62,14 @@ export function paths(p:string[], t:test):Query {
 	}
 }
 
-export function parse(p:string):Query {
-	const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-	parser.feed(p);
-	return parser.results[0];
+export function parser():any {
+	return new nearley.Parser(nearley.Grammar.fromCompiled(grammar))
+}
+
+export function parse(txt:string):Query {
+	const p:any = parser();
+	p.feed(txt);
+	return p.results[0];
 }
 
 function match(o:any, paths:string[], test:test, x:number):boolean {

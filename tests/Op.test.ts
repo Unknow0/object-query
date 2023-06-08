@@ -2,10 +2,10 @@ import { $match } from '../src/Op'
 
 describe('match', () => {
 	
-	test('ne', ()=> $match('t').match('test')).toBe(false)
-	test('eq', ()=> $match('test').match('test')).toBe(true)
+	test('ne', ()=> expect($match('err')('test')).toBe(false))
+	test('eq', ()=> expect($match('test')('test')).toBe(true))
 
-	test('start', ()=> $match('*st').match('test')).toBe(true)
-	test('end', ()=> $match('te*').match('test')).toBe(true)
-	test('incl', ()=> $match('*es*').match('test')).toBe(true)
+	test('start', ()=> expect($match('st')('test')).toBe(true))
+	test('end', ()=> expect($match('te')('test')).toBe(true))
+	test('incl', ()=> expect($match('es')('test')).toBe(true))
 })
