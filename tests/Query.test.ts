@@ -23,6 +23,7 @@ describe('path', ()=>{
 	test('array1', () => expect(m.match({a: [{b: 4}]})).toBe(true))
 	test('array2', () => expect(m.match({a: [{b: 4}, {b: 5}]})).toBe(true))
 	test('array3', () => expect(m.match({a: [{b: 6}, {b: 5}]})).toBe(false))
+	test('array2', () => expect(m.match({a: {b: [4, 5]}})).toBe(true))
 })
 
 describe('parse', () => {

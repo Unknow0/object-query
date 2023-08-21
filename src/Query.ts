@@ -73,14 +73,14 @@ export function parse(txt:string):Query {
 }
 
 function match(o:any, paths:string[], test:test, x:number):boolean {
+	if(Array.isArray(o)) {
+		for(let i=0; i<o.length; i++) {
+			if(match(o[i], paths, test, x))
+				return true;
+		}
+		return false;
+	}
 	if(o==null || x==paths.length)
 		return test(o);
-	if(!Array.isArray(o))
-		return match(o[paths[x]], paths, test, x+1);
-	
-	for(let i=0; i<o.length; i++) {
-		if(match(o[i], paths, test, x))
-			return true;
-	}
-	return false;
+	return match(o[paths[x]], paths, test, x+1);
 }
