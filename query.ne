@@ -39,8 +39,8 @@ op -> %ws:? key %ws:? (
 	| %ge %ws:? value							{% d => o.$ge(d[2]) %}
 	| %lt %ws:? value							{% d => o.$lt(d[2]) %}
 	| %le %ws:? value							{% d => o.$le(d[2]) %}
-	| %ws %_in %ws %lp %ws:? values %ws:? %rp	{% d => o.$in(d[2]) %}
-	| %ws %not %_in %lp %ws:? values %ws:? %rp	{% d => o.$nin(d[3]) %}
+	| %ws %_in %ws %lp %ws:? values %ws:? %rp	{% d => o.$in(d[5]) %}
+	| %ws %not %_in %lp %ws:? values %ws:? %rp	{% d => o.$nin(d[6]) %}
 	| %re %ws:? value							{% d => o.$match(d[2]) %}
 	| %nr %ws:? value							{% d => o.$not(o.$match(d[2])) %}
 	) %ws:?										{% d => paths(d[1], d[3]) %}

@@ -12,8 +12,8 @@ function rep(v:string, c:string):string {
 }
 
 export const lex = {
-	rp: '(',
-	lp: ')',
+	lp: '(',
+	rp: ')',
 	lt: '<',
 	le: '<=',
 	gt: '>',
@@ -36,6 +36,6 @@ export const lex = {
 	string:	[
 		{ match: /"(?:\\[tn"]|[^\n\t"\\])*"/, value: (v:string)=> rep(v, '"')},
 		{ match: /'(?:\\[tn']|[^\n\t'\\])*'/, value: (v:string)=> rep(v, "'")},
-		{ match: /[a-zA-Z][0-9a-zA-Z]*/, type: moo.keywords(km)}
+		{ match: /[a-zA-Z][0-9a-zA-Z_\-]*/, type: moo.keywords(km)}
 	]
 }

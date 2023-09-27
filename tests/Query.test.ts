@@ -29,5 +29,5 @@ describe('path', ()=>{
 describe('parse', () => {
 	test('error', () => expect(q.parse('qsd')).toBeUndefined())
 	test('ok', () => expect(q.parse('test: 4')).toBeDefined())
-	console.log(q.parse('test: 4').toString())
+	test('ok', () => expect(q.parse('test: toto-tata')).toBeDefined())
 })
