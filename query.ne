@@ -21,11 +21,7 @@
 	}
 
 	function key(d:any[]):any {
-		let a:any=[d[0].value];
-		d=d[1];
-		for(let i=0; i<d.length; i++)
-			a.push(d[i][1].value)
-		return a;
+		return [d[0].value].concat(d[1]);
 	}
 %}
 
